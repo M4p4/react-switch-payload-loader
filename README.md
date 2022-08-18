@@ -1,6 +1,6 @@
 # React Switch Payload Loader
 
-A Fusee Launcher coded in React and Tailwind CSS. This project is published under the MIT license, you can find more information [here](https://github.com/lordfriky/web-cfw-loader/blob/master/LICENSE).
+A Fusee Launcher coded in React and Tailwind CSS.
 
 # Description
 
@@ -8,7 +8,9 @@ This is a port of [fusee-launcher](https://github.com/Qyriad/fusee-launcher) to 
 
 # Try it out with your switch console.
 
-You can simple run the project in your local machine or you can try it [here](#link).
+You can simple run the project in your local machine or you can try it [here](https://react-switch-payload-loader.vercel.app).
+
+`npm install` and then `npm run dev` to run it localy.
 
 # Credits and thanks
 

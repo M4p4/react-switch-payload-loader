@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import Image from 'next/image';
+import React, { useState, useReducer } from 'react';
 import {
   write,
   createRCMPayload,
   readFileAsArrayBuffer,
   bufferToHex,
 } from '../lib/injector';
+import { loaderReducer, INIT_STATUS_STATE } from '../reducers/statusReducer';
 import Card from './card';
 
 const Loader = () => {
-  const [error, setError] = useState('');
   const [file, setFile] = useState(null);
   const [log, setLog] = useState('');
+  const [state, dispatch] = useReducer(loaderReducer, INIT_STATUS_STATE);
+  const { error, loading } = state;
 
   const updateLog = (line) => {
     console.log(line);
@@ -18,27 +21,28 @@ const Loader = () => {
   };
 
   const selectFile = (e) => {
-    setError('');
+    dispatch({ type: 'FINISH' });
     const selectedFile = e.target.files[0];
 
     if (!selectedFile) {
-      setError('Select a payload file.');
+      dispatch({ type: 'ERROR', payload: 'Select a payload file.' });
+      return;
     }
 
     if (selectedFile.type === 'application/macbinary') {
       setFile(selectedFile);
     } else {
-      setError('Invalid file type.');
+      dispatch({ type: 'ERROR', payload: 'Invalid file type.' });
     }
   };
 
   const injectPayload = async () => {
     //empty log and reset error  on each injection
     setLog('');
-    setError('');
+    dispatch({ type: 'LOADING' });
 
     if (!file) {
-      setError('Select a payload file.');
+      dispatch({ type: 'ERROR', payload: 'Select a payload file.' });
       return;
     }
 
@@ -49,7 +53,10 @@ const Loader = () => {
         filters: [{ vendorId: 0x0955 }],
       });
     } catch (error) {
-      setError('Connect your Nintendo Switch in RCM mode.');
+      dispatch({
+        type: 'ERROR',
+        payload: 'Connect your Nintendo Switch in RCM mode.',
+      });
       return;
     }
 
@@ -74,11 +81,12 @@ const Loader = () => {
         await device.transferOut(1, new ArrayBuffer(0x1000));
       }
     } catch (error) {
-      setError('Failed to inject payload!');
+      dispatch({ type: 'ERROR', payload: 'Failed to inject payload!' });
       return;
     }
 
     updateLog('Trigging vulnerability...');
+    dispatch({ type: 'FINISH' });
     try {
       const vulnerabilityLength = 0x7000;
       await device.controlTransferIn(
@@ -113,7 +121,16 @@ const Loader = () => {
         onClick={injectPayload}
         className="bg-sky-700 w-full p-4 rounded-md hover:bg-sky-600 border border-sky-800 duration-200 shadow-lg"
       >
-        Inject Payload
+        {loading ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="mx-auto w-6 animate-spin"
+            src="/images/loading.svg"
+            alt="Loading..."
+          />
+        ) : (
+          'Inject Payload'
+        )}
       </button>
 
       {error && (

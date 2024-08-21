@@ -29,7 +29,10 @@ const Loader = () => {
       return;
     }
 
-    if (selectedFile.type === 'application/macbinary') {
+    if (
+      selectedFile.type === 'application/macbinary' ||
+      selectedFile.type === 'application/octet-stream'
+    ) {
       setFile(selectedFile);
     } else {
       dispatch({ type: 'ERROR', payload: 'Invalid file type.' });
@@ -114,7 +117,11 @@ const Loader = () => {
       </h3>
 
       <div className="mx-auto p-3 ml-24 text-sm text-gray-200">
-        <input type={'file'} onChange={selectFile} />
+        <input
+          type={'file'}
+          onChange={selectFile}
+          accept="application/macbinary, application/octet-stream"
+        />
       </div>
 
       <button
